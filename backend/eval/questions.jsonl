@@ -1,0 +1,101 @@
+{"question": "What is the transformer architecture and what problem does self-attention solve?"}
+{"question": "Summarize the key contribution of the 'Attention Is All You Need' paper."}
+{"question": "How does retrieval-augmented generation (RAG) reduce hallucinations?"}
+{"question": "Compare dense and sparse retrieval methods for question answering."}
+{"question": "What is the role of positional encodings in transformer models?"}
+{"question": "Explain how FAISS performs approximate nearest neighbor search."}
+{"question": "What is LoRA and why is it useful for fine-tuning large language models?"}
+{"question": "Describe the difference between encoder-only, decoder-only, and encoder-decoder transformers."}
+{"question": "What are the main evaluation metrics for retrieval quality?"}
+{"question": "How does chain-of-thought prompting improve reasoning?"}
+{"question": "What is the BM25 ranking function and how does it differ from cosine similarity?"}
+{"question": "Explain the concept of in-context learning."}
+{"question": "What is the difference between fine-tuning and prompt engineering?"}
+{"question": "Describe how reinforcement learning from human feedback (RLHF) works."}
+{"question": "What are the trade-offs between larger context windows and inference cost?"}
+{"question": "What is mixture-of-experts (MoE) and what efficiency benefits does it provide?"}
+{"question": "How does speculative decoding accelerate LLM inference?"}
+{"question": "Explain the concept of agentic AI workflows."}
+{"question": "What is the role of a Critic agent in a multi-agent system?"}
+{"question": "Compare LangGraph and AutoGen for orchestrating multi-agent workflows."}
+{"question": "What problem does the ReAct prompting pattern solve?"}
+{"question": "How is faithfulness measured in evaluating RAG systems?"}
+{"question": "What is the difference between extractive and abstractive summarization?"}
+{"question": "Explain how embeddings are evaluated using benchmarks like MTEB."}
+{"question": "What is HyDE (Hypothetical Document Embeddings) and when is it useful?"}
+{"question": "Describe re-ranking with cross-encoders versus first-pass retrieval with bi-encoders."}
+{"question": "What are common failure modes of vector search at scale?"}
+{"question": "Explain how PDF parsing libraries handle multi-column layouts."}
+{"question": "How do you chunk documents for RAG and why does overlap matter?"}
+{"question": "What is the difference between document, passage, and proposition-level retrieval?"}
+{"question": "Describe the role of guardrails in LLM applications."}
+{"question": "What is the Lost in the Middle problem in long-context LLMs?"}
+{"question": "How does function calling work in modern LLM APIs?"}
+{"question": "What is the difference between zero-shot, one-shot, and few-shot prompting?"}
+{"question": "Explain how tool use is integrated into agentic LLMs."}
+{"question": "What is the role of a vector database versus a traditional database?"}
+{"question": "Compare HNSW and IVF indexes in FAISS."}
+{"question": "What is the impact of embedding dimensionality on retrieval quality?"}
+{"question": "Explain how hybrid search (dense + sparse) is implemented in practice."}
+{"question": "What is contrastive learning and how does it relate to embedding training?"}
+{"question": "Describe the typical pipeline for evaluating a question answering system."}
+{"question": "What is the role of system prompts in shaping LLM behavior?"}
+{"question": "Explain how streaming responses work in OpenAI's API."}
+{"question": "What considerations apply when deploying LLM applications to production?"}
+{"question": "How is latency typically measured for LLM endpoints?"}
+{"question": "What is p95 latency and why is it preferred over average?"}
+{"question": "Describe how rate limits affect agentic workflows that issue many sequential calls."}
+{"question": "What is the difference between top-k and top-p (nucleus) sampling?"}
+{"question": "How does temperature affect LLM output?"}
+{"question": "Explain the role of stop sequences in LLM generation."}
+{"question": "What is a context window and what determines its maximum size?"}
+{"question": "Describe the role of caching in reducing LLM inference cost."}
+{"question": "How do LLMs handle non-English languages and multilingual queries?"}
+{"question": "What is the role of a tokenizer in LLM inference?"}
+{"question": "Explain BPE (Byte-Pair Encoding) tokenization."}
+{"question": "What is the relationship between tokens and characters or words?"}
+{"question": "Describe how knowledge graphs can complement vector search."}
+{"question": "What is GraphRAG and what problem does it address?"}
+{"question": "How are LLM evaluations affected by prompt sensitivity?"}
+{"question": "Explain the concept of self-consistency in LLM reasoning."}
+{"question": "What are the safety risks of allowing LLMs to call arbitrary tools?"}
+{"question": "Describe a sandboxing strategy for tool-using agents."}
+{"question": "What is the role of structured outputs (JSON mode) in agent reliability?"}
+{"question": "Explain how Pydantic schemas help validate LLM outputs."}
+{"question": "What is the difference between a retriever and a re-ranker?"}
+{"question": "Describe the trade-off between recall and precision in retrieval."}
+{"question": "What is MRR (Mean Reciprocal Rank) and when is it appropriate?"}
+{"question": "Explain nDCG and how it weights ranking quality."}
+{"question": "What is the difference between offline and online evaluation of RAG?"}
+{"question": "Describe shadow traffic as a deployment strategy for LLM apps."}
+{"question": "What is the role of golden datasets in regression testing LLM features?"}
+{"question": "Explain how A/B testing applies to RAG retrieval changes."}
+{"question": "What is prompt injection and how can it be mitigated?"}
+{"question": "Describe defenses against jailbreak prompts."}
+{"question": "What is the difference between alignment and capability in LLMs?"}
+{"question": "Explain how synthetic data generation is used to train embedders."}
+{"question": "What is multi-vector retrieval (e.g., ColBERT)?"}
+{"question": "Describe how late-interaction models differ from single-vector embedders."}
+{"question": "What is the role of metadata filtering in vector search?"}
+{"question": "Explain how time-decay weighting can be applied to retrieval."}
+{"question": "What is query expansion and when does it help?"}
+{"question": "Describe how query decomposition improves multi-hop question answering."}
+{"question": "What is HotpotQA and what does it evaluate?"}
+{"question": "Explain the difference between bridge and comparison questions in HotpotQA."}
+{"question": "What is the role of evidence chains in multi-hop QA?"}
+{"question": "Describe the typical architecture of an agentic research assistant."}
+{"question": "What is the trade-off between determinism and autonomy in agent design?"}
+{"question": "Explain how observability (tracing, logging) supports agent debugging."}
+{"question": "What is the role of LangSmith or similar tools in agent development?"}
+{"question": "Describe how cost is typically estimated for an LLM-powered application."}
+{"question": "What is the impact of batching on embedding throughput?"}
+{"question": "Explain why deduplication matters before embedding documents."}
+{"question": "What is the role of normalization (L2) when using cosine similarity?"}
+{"question": "Describe how PDF tables can be extracted for downstream use."}
+{"question": "What are the limitations of OCR-based PDF parsing?"}
+{"question": "Explain the role of layout-aware parsing (e.g., LayoutLM)."}
+{"question": "What is the role of citations in building user trust for AI answers?"}
+{"question": "Describe a UX pattern for showing source attribution inline."}
+{"question": "What is the difference between a model and a model endpoint?"}
+{"question": "Explain how rate-limit backoff should be implemented for OpenAI APIs."}
+{"question": "What is the role of an evaluation harness in iterating on RAG quality?"}

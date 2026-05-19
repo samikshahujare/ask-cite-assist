@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/pdfs/*
+!data/pdfs/.gitkeep
+data/index.faiss
+data/meta.jsonl
+data/sessions.jsonl
+data/metrics.jsonl
+eval/results.json
