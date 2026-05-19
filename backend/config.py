@@ -11,6 +11,18 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     TAVILY_API_KEY: str = ""
 
+    # LLM provider (OpenAI-compatible). For OpenRouter:
+    #   OPENAI_BASE_URL=https://openrouter.ai/api/v1
+    #   OPENAI_API_KEY=sk-or-...
+    #   OPENAI_CHAT_MODEL=openai/gpt-4o-mini   (or any OpenRouter model id)
+    OPENAI_BASE_URL: str = ""
+
+    # Embedding provider. "openai" uses the OpenAI-compatible client above
+    # (works with OpenAI, NOT with OpenRouter — OpenRouter has no embeddings).
+    # "local" uses sentence-transformers (free, CPU, 384 dims).
+    EMBEDDING_PROVIDER: str = "openai"  # "openai" | "local"
+    LOCAL_EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+
     OPENAI_CHAT_MODEL: str = "gpt-4o-mini"
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
