@@ -23,4 +23,5 @@ Return strictly JSON:
 def judge(question: str, answer: str, passages: list[str]) -> JudgeScore:
     p = "\n\n".join(f"[{i+1}] {t[:600]}" for i, t in enumerate(passages))
     user = f"QUESTION:\n{question}\n\nANSWER:\n{answer}\n\nPASSAGES:\n{p}"
-    return chat_json(SYSTEM, user, JudgeScore, model="gpt-4o-mini")
+    # Uses whatever model is configured (OpenAI gpt-4o-mini OR OpenRouter equivalent).
+    return chat_json(SYSTEM, user, JudgeScore)
