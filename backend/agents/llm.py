@@ -18,9 +18,13 @@ def get_client() -> OpenAI:
     if _client is None:
         if not settings.OPENAI_API_KEY:
             raise RuntimeError(
-                "OPENAI_API_KEY is not set. Copy backend/.env.example to backend/.env and fill it in."
+                "OPENAI_API_KEY is not set. Copy backend/.env.example to backend/.env and fill it in. "
+                "For OpenRouter, set OPENAI_API_KEY=sk-or-... and OPENAI_BASE_URL=https://openrouter.ai/api/v1"
             )
-        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        kwargs = {"api_key": settings.OPENAI_API_KEY}
+        if settings.OPENAI_BASE_URL:
+            kwargs["base_url"] = settings.OPENAI_BASE_URL
+        _client = OpenAI(**kwargs)
     return _client
 
 
