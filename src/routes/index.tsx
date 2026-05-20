@@ -12,7 +12,6 @@ import {
   type Citation,
   type RetrievedChunk,
   type ResearchMetrics,
-  API_BASE,
 } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
@@ -57,7 +56,7 @@ function Index() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Request failed";
       setError(msg);
-      toast.error(`Backend not reachable at ${API_BASE}. Start the FastAPI server.`);
+      toast.error(msg, { duration: 9000 });
     } finally {
       setBusy(false);
     }
