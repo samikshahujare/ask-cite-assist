@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     DATA_DIR: str = "data"
     ALLOWED_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://localhost:8080"
-    ALLOWED_ORIGIN_REGEX: str = r"https://.*\.lovable\.app"
+    ALLOWED_ORIGIN_REGEX: str = r"https://.*\.(lovable\.app|lovableproject\.com)$"
 
     @property
     def data_path(self) -> Path:
@@ -47,7 +47,13 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_regex(self) -> str | None:
-        return self.ALLOWED_ORIGIN_REGEX.strip() or None
+        configured = self.ALLOWED_ORIGIN_REGEX.strip()
+        lovable_preview = r"https://.*\.(lovable\.app|lovableproject\.com)$"
+        if not configured:
+            return lovable_preview
+        if "lovableproject" in configured:
+            return configured
+        return f"({configured})|({lovable_preview})"
 
 
 settings = Settings()
