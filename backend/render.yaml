@@ -1,0 +1,41 @@
+# One-click deploy to Render (free tier)
+services:
+  - type: web
+    name: agentic-ai-research-assistant
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: OPENAI_BASE_URL
+        sync: false  # set in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false  # set in Render dashboard (OpenRouter key)
+      - key: OPENAI_CHAT_MODEL
+        value: meta-llama/llama-3.1-8b-instruct:free
+      - key: EMBEDDING_PROVIDER
+        value: local
+      - key: LOCAL_EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: TAVILY_API_KEY
+        sync: false  # optional — set in Render dashboard for web search
+      - key: CHUNK_SIZE
+        value: 500
+      - key: CHUNK_OVERLAP
+        value: 50
+      - key: RETRIEVAL_TOP_K
+        value: 5
+      - key: ALLOWED_ORIGINS
+        value: ""
+      - key: ALLOWED_ORIGIN_REGEX
+        value: "https://.*"
+    disk:
+      name: data
+      mountPath: /app/data
+      sizeGB: 1
