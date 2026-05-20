@@ -31,7 +31,8 @@ class Settings(BaseSettings):
     RETRIEVAL_TOP_K: int = 5
 
     DATA_DIR: str = "data"
-    ALLOWED_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://localhost:8080"
+    ALLOWED_ORIGIN_REGEX: str = r"https://.*\.lovable\.app"
 
     @property
     def data_path(self) -> Path:
@@ -43,6 +44,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> list[str]:
         return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def cors_origin_regex(self) -> str | None:
+        return self.ALLOWED_ORIGIN_REGEX.strip() or None
 
 
 settings = Settings()

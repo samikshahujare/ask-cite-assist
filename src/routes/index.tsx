@@ -8,11 +8,11 @@ import { CitationCard } from "@/components/citation-card";
 import { AgentSteps, type StepName, type StepStatus } from "@/components/agent-steps";
 import { MetricCard } from "@/components/metric-card";
 import {
+  API_BASE,
   streamResearch,
   type Citation,
   type RetrievedChunk,
   type ResearchMetrics,
-  API_BASE,
 } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
@@ -23,7 +23,10 @@ function Index() {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [steps, setSteps] = useState<Record<StepName, StepStatus>>({
-    planner: "idle", researcher: "idle", critic: "idle", writer: "idle",
+    planner: "idle",
+    researcher: "idle",
+    critic: "idle",
+    writer: "idle",
   });
   const [chunks, setChunks] = useState<RetrievedChunk[]>([]);
   const [answer, setAnswer] = useState<string>("");
@@ -37,7 +40,10 @@ function Index() {
     setBusy(true);
     setError(null);
     setSteps({ planner: "idle", researcher: "idle", critic: "idle", writer: "idle" });
-    setChunks([]); setAnswer(""); setCitations([]); setMetrics(null);
+    setChunks([]);
+    setAnswer("");
+    setCitations([]);
+    setMetrics(null);
     try {
       await streamResearch(query, (e) => {
         if (e.event === "agent_step") {
@@ -57,7 +63,7 @@ function Index() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Request failed";
       setError(msg);
-      toast.error(`Backend not reachable at ${API_BASE}. Start the FastAPI server.`);
+      toast.error(msg, { duration: 9000 });
     } finally {
       setBusy(false);
     }
@@ -88,7 +94,8 @@ function Index() {
         <header className="px-8 py-5 border-b border-border">
           <h1 className="text-lg font-semibold">Research Workspace</h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Ask a question. A 4-agent pipeline plans, retrieves from your PDFs, critiques, and writes a cited answer.
+            Ask a question. A 4-agent pipeline plans, retrieves from your PDFs, critiques, and
+            writes a cited answer.
           </p>
         </header>
 
@@ -117,23 +124,46 @@ function Index() {
 
               {metrics && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <MetricCard label="Latency" value={`${(metrics.latency_ms / 1000).toFixed(1)}s`} hint="end-to-end" />
-                  <MetricCard label="Citations" value={metrics.citation_count} hint={`${metrics.retrieval_count} retrieved`} />
-                  <MetricCard label="Confidence" value={metrics.confidence.toFixed(2)} hint="avg cosine of cited" tone="good" />
+                  <MetricCard
+                    label="Latency"
+                    value={`${(metrics.latency_ms / 1000).toFixed(1)}s`}
+                    hint="end-to-end"
+                  />
+                  <MetricCard
+                    label="Citations"
+                    value={metrics.citation_count}
+                    hint={`${metrics.retrieval_count} retrieved`}
+                  />
+                  <MetricCard
+                    label="Confidence"
+                    value={metrics.confidence.toFixed(2)}
+                    hint="avg cosine of cited"
+                    tone="good"
+                  />
                   <MetricCard
                     label="Hallucination risk"
                     value={metrics.hallucination_risk}
                     hint={`coverage ${metrics.coverage_score.toFixed(2)}`}
-                    tone={metrics.hallucination_risk === "low" ? "good" : metrics.hallucination_risk === "medium" ? "warn" : "bad"}
+                    tone={
+                      metrics.hallucination_risk === "low"
+                        ? "good"
+                        : metrics.hallucination_risk === "medium"
+                          ? "warn"
+                          : "bad"
+                    }
                   />
                 </div>
               )}
 
               {citations.length > 0 && (
                 <div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Citations</div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                    Citations
+                  </div>
                   <div className="grid md:grid-cols-2 gap-2">
-                    {citations.map((c) => <CitationCard key={c.n} c={c} />)}
+                    {citations.map((c) => (
+                      <CitationCard key={c.n} c={c} />
+                    ))}
                   </div>
                 </div>
               )}
@@ -144,20 +174,29 @@ function Index() {
                     onClick={() => setChunksOpen((v) => !v)}
                     className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
                   >
-                    {chunksOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                    {chunksOpen ? (
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    )}
                     Retrieved chunks ({chunks.length})
                   </button>
                   {chunksOpen && (
                     <div className="mt-2 space-y-2">
                       {chunks.map((c, i) => (
-                        <div key={c.chunk_id} className="rounded-md border border-border bg-card/60 p-3 text-xs">
+                        <div
+                          key={c.chunk_id}
+                          className="rounded-md border border-border bg-card/60 p-3 text-xs"
+                        >
                           <div className="flex items-center gap-2 mb-1 text-muted-foreground">
                             <span className="text-primary font-semibold">#{i + 1}</span>
                             <span className="font-medium text-foreground">{c.filename}</span>
                             {c.page > 0 && <span>· p.{c.page}</span>}
                             <span className="ml-auto">score {c.score.toFixed(3)}</span>
                           </div>
-                          <div className="text-muted-foreground leading-relaxed line-clamp-4">{c.text}</div>
+                          <div className="text-muted-foreground leading-relaxed line-clamp-4">
+                            {c.text}
+                          </div>
                         </div>
                       ))}
                     </div>
