@@ -39,7 +39,7 @@ export function UploadPanel({ onUploaded }: { onUploaded?: () => void }) {
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Upload failed";
       setQueue((q) => q.map((it, i) => (i >= idx ? { ...it, status: "error", msg } : it)));
-      toast.error(msg);
+      toast.error(msg, { duration: 9000 });
     }
   }, [queue.length, onUploaded]);
 
@@ -80,7 +80,7 @@ export function UploadPanel({ onUploaded }: { onUploaded?: () => void }) {
               <span className="truncate flex-1">{it.name}</span>
               {it.status === "uploading" && <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />}
               {it.status === "done" && <span className="text-primary text-[10px]">{it.msg}</span>}
-              {it.status === "error" && <span className="text-destructive text-[10px] truncate max-w-[140px]" title={it.msg}>{it.msg}</span>}
+              {it.status === "error" && <span className="text-destructive text-[10px] truncate max-w-[360px]" title={it.msg}>{it.msg}</span>}
               <button onClick={() => setQueue((q) => q.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-foreground">
                 <X className="w-3 h-3" />
               </button>
