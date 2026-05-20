@@ -5,9 +5,9 @@ import json
 import time
 from typing import List
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import Response, StreamingResponse, JSONResponse
 from pydantic import BaseModel
 
 from config import settings
@@ -27,6 +27,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def allow_private_network_access(request: Request, call_next):
+    """Allow browser previews on HTTPS origins to call a local FastAPI server."""
+    if request.method == "OPTIONS":
+        response = Response(status_code=204)
+    else:
+        response = await call_next(request)
+    if request.headers.get("access-control-request-private-network") == "true":
+        response.headers["Access-Control-Allow-Private-Network"] = "true"
+    return response
 
 
 @app.get("/")
