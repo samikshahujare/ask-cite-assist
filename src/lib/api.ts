@@ -5,12 +5,14 @@ export const API_BASE =
 
 export function getBackendConnectionHelp() {
   const fromLovablePreview =
-    typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app");
+    typeof window !== "undefined" &&
+    (window.location.hostname.endsWith(".lovable.app") ||
+      window.location.hostname.endsWith(".lovableproject.com"));
   const usingLocalBackend =
     API_BASE.startsWith("http://localhost") || API_BASE.startsWith("http://127.0.0.1");
 
   if (fromLovablePreview && usingLocalBackend) {
-    return "Lovable preview cannot reach a backend running on your computer. Set VITE_API_URL to a public backend URL, or use an HTTPS tunnel like ngrok.";
+    return `This preview is calling your local FastAPI backend at ${API_BASE}. Start it on port 8000 and restart it after updating backend/.env CORS to include lovableproject.com.`;
   }
 
   return `Backend unreachable at ${API_BASE}. Make sure the FastAPI server is running and CORS allows this frontend origin.`;
