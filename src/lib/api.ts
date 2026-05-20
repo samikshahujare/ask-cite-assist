@@ -126,12 +126,18 @@ export async function streamResearch(
   onEvent: (e: SseEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {
-  const r = await fetch(`${API_BASE}/research`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-    signal,
-  });
+  let r: Response;
+  try {
+    r = await fetch(`${API_BASE}/research`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+      signal,
+    });
+  } catch (error) {
+    throw new Error(getBackendConnectionHelp(), { cause: error });
+  }
+
   if (!r.ok || !r.body) throw new Error(`Research failed: ${r.status}`);
   const reader = r.body.getReader();
   const dec = new TextDecoder();
