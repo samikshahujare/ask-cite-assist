@@ -23,7 +23,11 @@ function DocumentsPage() {
           <span>{data?.stats.chunks ?? 0} chunks · {data?.stats.documents ?? 0} docs</span>
         </div>
         {isLoading && <div className="p-4 text-sm text-muted-foreground">Loading…</div>}
-        {error && <div className="p-4 text-sm text-destructive">Backend unreachable.</div>}
+        {error && (
+          <div className="p-4 text-sm text-destructive">
+            {error instanceof Error ? error.message : "Backend unreachable."}
+          </div>
+        )}
         {data?.documents?.length === 0 && <div className="p-6 text-sm text-muted-foreground text-center">No documents yet.</div>}
         <ul className="divide-y divide-border">
           {data?.documents?.map((d) => (
