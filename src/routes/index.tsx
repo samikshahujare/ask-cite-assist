@@ -8,6 +8,7 @@ import { CitationCard } from "@/components/citation-card";
 import { AgentSteps, type StepName, type StepStatus } from "@/components/agent-steps";
 import { MetricCard } from "@/components/metric-card";
 import {
+  API_BASE,
   streamResearch,
   type Citation,
   type RetrievedChunk,
