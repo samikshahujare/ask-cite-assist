@@ -4,8 +4,10 @@ export const API_BASE =
   "http://localhost:8000";
 
 export function getBackendConnectionHelp() {
-  const fromLovablePreview = typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app");
-  const usingLocalBackend = API_BASE.startsWith("http://localhost") || API_BASE.startsWith("http://127.0.0.1");
+  const fromLovablePreview =
+    typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app");
+  const usingLocalBackend =
+    API_BASE.startsWith("http://localhost") || API_BASE.startsWith("http://127.0.0.1");
 
   if (fromLovablePreview && usingLocalBackend) {
     return "Lovable preview cannot reach a backend running on your computer. Set VITE_API_URL to a public backend URL, or use an HTTPS tunnel like ngrok.";
@@ -14,7 +16,11 @@ export function getBackendConnectionHelp() {
   return `Backend unreachable at ${API_BASE}. Make sure the FastAPI server is running and CORS allows this frontend origin.`;
 }
 
-async function request<T>(path: string, init?: RequestInit, fallback = "Request failed"): Promise<T> {
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  fallback = "Request failed",
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_BASE}${path}`, init);
@@ -91,7 +97,10 @@ export async function uploadPdfs(files: File[]): Promise<UploadResult> {
   return request<UploadResult>("/upload", { method: "POST", body: fd }, "Upload failed");
 }
 
-export async function listDocuments(): Promise<{ documents: DocItem[]; stats: { chunks: number; documents: number } }> {
+export async function listDocuments(): Promise<{
+  documents: DocItem[];
+  stats: { chunks: number; documents: number };
+}> {
   return request("/documents", undefined, "Failed to list documents");
 }
 
@@ -114,7 +123,10 @@ export async function fetchMetrics(): Promise<AggregateMetrics> {
 }
 
 export type SseEvent =
-  | { event: "agent_step"; data: { step: string; status: "start" | "done"; output?: unknown; count?: number } }
+  | {
+      event: "agent_step";
+      data: { step: string; status: "start" | "done"; output?: unknown; count?: number };
+    }
   | { event: "chunks"; data: { chunks: RetrievedChunk[] } }
   | { event: "final"; data: ResearchFinal }
   | { event: "error"; data: { message: string } };
