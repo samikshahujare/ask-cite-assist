@@ -1,146 +1,121 @@
+## Run & Deploy — Step by Step
 
-# Agentic AI Research Assistant — Build Plan
-
-## Important: how this will run
-
-Lovable's sandbox runs **Node/Cloudflare Workers**, not Python. It cannot execute FastAPI, LangGraph, FAISS or PyMuPDF. Since you want that exact stack preserved, I will:
-
-1. **Build the React frontend live here** (you see it in the preview, deploy to Vercel from Lovable's Publish).
-2. **Write the full Python backend as source files inside `/backend/`** in this same repo. Lovable won't run it, but every file will be there, production-quality, ready for you to `pip install` and `uvicorn app:app --reload` locally, or deploy to Render/Railway with the included Dockerfile.
-
-You will end up with **one repo, two deployables** — exactly the architecture in your brief.
+You have two pieces: **Python backend** (FastAPI + LangGraph + FAISS) and **React frontend** (already live on Lovable preview). Run backend locally first, then deploy backend to Render, then point the frontend at it.
 
 ---
 
-## What you get
+### PART A — Run locally (15 min)
 
-### Frontend (`/src` — built and previewable in Lovable)
-- React + TypeScript + Tailwind + shadcn/ui (already scaffolded; I'll keep TanStack Start router — it's still React+TS, deploys to Vercel)
-- Dark Perplexity/Notion aesthetic, responsive
-- **Pages/components**
-  - Sidebar nav (Workspace / History / Documents / Evaluation / Settings)
-  - **Upload panel**: drag-drop, multi-file, per-file progress, document list with delete
-  - **Chat workspace**: streaming answer, markdown rendering, citation cards `[1] filename · p.4`, expandable retrieved chunks under each answer, agent-step indicator (Planner → Researcher → Critic → Writer)
-  - **Session history**: list of past Q&As, click to reload
-  - **Evaluation dashboard**: cards for latency (p50/p95), citation count, confidence (avg cosine), retrieval count, hallucination risk badge, faithfulness/citation-accuracy scores from LLM-judge
-  - **Download report**: button to export the current answer as `.md` or `.pdf`
-- API client reads `VITE_API_URL` (your deployed backend URL)
+**Prereqs:** Python 3.11+, Node 20+, Git, your OpenRouter key (`sk-or-v1-...`) and Tavily key (`tvly-...`).
 
-### Backend (`/backend` — source code only, you run it)
-```
-backend/
-  app.py                    # FastAPI app, CORS, routes /upload /research /history /metrics
-  config.py                 # env loading (OPENAI_API_KEY, TAVILY_API_KEY, etc.)
-  requirements.txt
-  Dockerfile
-  .env.example              # placeholders for keys
-  agents/
-    schemas.py              # Pydantic models for every agent I/O
-    planner.py              # rewrites query → retrieval query + sub-questions
-    researcher.py           # FAISS retrieval + optional Tavily web search
-    critic.py               # validates citations / grounding
-    writer.py               # final markdown w/ [n] citations
-    graph.py                # LangGraph wiring: Planner→Researcher→Critic→Writer (deterministic, no loops)
-  rag/
-    ingest.py               # PyMuPDF parse → 500-token chunks, 50 overlap
-    embeddings.py           # text-embedding-3-small wrapper
-    vectorstore.py          # FAISS index load/save (/data/index.faiss + meta.jsonl)
-    retriever.py            # top-k cosine retrieval w/ metadata
-  eval/
-    judge.py                # GPT-4o-mini LLM-as-judge: faithfulness 0–1, citation_accuracy 0–1
-    run_eval.py             # runs the 100-question set, writes eval/results.json
-    questions.jsonl         # 100 Q&A pairs (HotpotQA dev subset bundled)
-  scripts/
-    scrape_pdfs.py          # fetches ~50 arXiv PDFs into /data/pdfs
-  data/
-    pdfs/                   # (gitignored, scrape script populates)
-    index.faiss             # (gitignored, built on first upload/ingest)
-README.md
-ARCHITECTURE_DIAGRAM.md     # mermaid system diagram + LangGraph flow
-SYSTEM_FLOW.md              # request lifecycle, beginner-friendly
-```
-
-### API contract (stable — frontend talks to this)
-- `POST /upload` — multipart PDFs → parse, chunk, embed, upsert into FAISS → returns `{doc_ids, chunks_added}`
-- `POST /research` — `{query, session_id?}` → SSE stream of `{type: "agent_step"|"chunk"|"citation"|"final", ...}` ending with the final markdown + metrics
-- `GET /history` — list of past sessions
-- `GET /metrics` — aggregate latency p50/p95, citation count, faithfulness, etc.
-
-### Multi-agent workflow (deterministic, no autonomous loops)
-```text
-User Query
-   ↓
-Planner   (OpenAI)  → retrieval_query + sub_questions     [Pydantic]
-   ↓
-Researcher          → FAISS top-k (+ optional Tavily)      [Pydantic]
-   ↓
-Critic    (OpenAI)  → grounded? citations valid? score     [Pydantic]
-   ↓
-Writer    (OpenAI)  → final markdown w/ [n] citations      [Pydantic]
-   ↓
-Response + metrics (latency, citation_count, confidence, hallucination_risk)
-```
-
----
-
-## What you need to do (step by step)
-
-### One-time setup
-1. **Get API keys** (free tiers fine for portfolio):
-   - OpenAI: https://platform.openai.com/api-keys
-   - Tavily (optional, for web search): https://tavily.com — free tier
-2. **Frontend env**: in Lovable, after I'm done, set `VITE_API_URL` to wherever your backend will live (e.g. `http://localhost:8000` for local dev, or your Render URL).
-
-### Run the backend locally
+**1. Clone your repo**
 ```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate    # Windows: .venv\Scripts\activate
+git clone https://github.com/samikshahujare/ask-cite-assist.git
+cd ask-cite-assist/backend
+```
+
+**2. Create `.env` inside `backend/`**
+```env
+OPENAI_API_KEY=sk-or-v1-YOUR_OPENROUTER_KEY
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_CHAT_MODEL=meta-llama/llama-3.1-8b-instruct:free
+EMBEDDING_PROVIDER=local
+LOCAL_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+TAVILY_API_KEY=tvly-YOUR_TAVILY_KEY
+CHUNK_SIZE=500
+CHUNK_OVERLAP=50
+RETRIEVAL_TOP_K=5
+DATA_DIR=data
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:8080
+ALLOWED_ORIGIN_REGEX=https://.*\.(lovable\.app|lovableproject\.com)$
+```
+
+**3. Install Python deps** (use a venv)
+```bash
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
-# open .env, paste OPENAI_API_KEY=...   TAVILY_API_KEY=... (optional)
-python scripts/scrape_pdfs.py          # optional: pre-load 50 arXiv PDFs
-uvicorn app:app --reload --port 8000
 ```
-Backend now live at `http://localhost:8000`. Swagger docs at `/docs`.
+First install downloads the MiniLM model (~90 MB) — that's normal.
 
-### Run the frontend locally (or use Lovable preview)
-- In Lovable: just open the preview — it points at `VITE_API_URL` from project env.
-- Locally:
+**4. Scrape 50 arXiv PDFs**
 ```bash
-npm install
-echo "VITE_API_URL=http://localhost:8000" > .env.local
-npm run dev
+python scripts/scrape_pdfs.py
 ```
+Files land in `backend/data/pdfs/`.
 
-### Run evaluation
+**5. Build the FAISS index**
 ```bash
-cd backend
-python eval/run_eval.py          # runs 100 Q&A, GPT-4o-mini judges, writes eval/results.json
+python -c "from rag.ingest import ingest_dir; ingest_dir('data/pdfs')"
 ```
-Numbers also appear live in the frontend Evaluation Dashboard via `/metrics`.
 
-### Deploy
-- **Frontend → Vercel**: click Publish in Lovable, or `vercel` CLI from repo root. Set `VITE_API_URL` to your backend URL in Vercel env.
-- **Backend → Render**: New Web Service → connect repo → root dir `backend` → use included Dockerfile. Add `OPENAI_API_KEY` and `TAVILY_API_KEY` in Render env. Free tier works.
+**6. Start the API**
+```bash
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+Open `http://localhost:8000/docs` → try `/research?q=what+is+RAG`.
+
+**7. (Optional) Run the eval harness**
+```bash
+python eval/run_eval.py
+```
+Writes `eval/results.json` with faithfulness + citation-accuracy scores.
+
+**8. Point the Lovable frontend at your local backend** (only for local testing)
+In the Lovable chat, ask: *"set VITE_API_URL to http://localhost:8000"*. The preview will hit your local API.
 
 ---
 
-## What I will NOT do
-- Not build mock backend code in TypeScript — your spec keeps Python.
-- Not add autonomous agent loops or self-improving agents (per your brief).
-- Not invent API keys or hide them — `.env.example` has placeholders, you fill them.
-- Not add authentication (you said it's not required).
+### PART B — Deploy backend to Render (10 min, free tier)
+
+**1. Push to GitHub** — already done (`samikshahujare/ask-cite-assist`).
+
+**2. Create a Render account** → https://render.com (sign in with GitHub).
+
+**3. New Blueprint**
+- Dashboard → **New +** → **Blueprint**
+- Connect the `ask-cite-assist` repo
+- Render reads `backend/render.yaml` and proposes a Web Service + 1 GB disk
+
+**4. Set environment variables in Render UI** (the secret ones)
+- `OPENAI_API_KEY` = your OpenRouter key
+- `TAVILY_API_KEY` = your Tavily key
+- (the rest are already in `render.yaml`)
+
+**5. Click "Apply"** → Render builds (~5 min, downloads MiniLM during first deploy) → you get a URL like `https://ask-cite-assist.onrender.com`.
+
+**6. One-time ingestion on Render** — open Render → your service → **Shell** tab → run:
+```bash
+python scripts/scrape_pdfs.py
+python -c "from rag.ingest import ingest_dir; ingest_dir('data/pdfs')"
+```
+The FAISS index persists on the 1 GB disk across redeploys.
+
+**7. Smoke test** — open `https://ask-cite-assist.onrender.com/docs` → call `/research?q=...`.
 
 ---
 
-## Build order (single batch, no further questions needed)
-1. Scaffold `/backend` with all Python files, requirements, Dockerfile, .env.example
-2. Write Pydantic schemas, 4 agents, LangGraph wiring
-3. Write RAG pipeline (PyMuPDF ingest, FAISS store, retriever, OpenAI embeddings)
-4. Write FastAPI app with the 4 endpoints + SSE streaming
-5. Write eval harness + 100-question seed set + scrape script
-6. Build the React frontend: sidebar, upload, chat workspace, citations, history, eval dashboard, MD/PDF export
-7. Write `README.md`, `ARCHITECTURE_DIAGRAM.md` (mermaid), `SYSTEM_FLOW.md`
-8. Hand back with a clear "what to do now" checklist
+### PART C — Connect Lovable frontend to the live backend (2 min)
 
-After you approve this plan I'll execute all of it. Confirm and I'll start building.
+In the Lovable chat, paste:
+> *"Set `VITE_API_URL` to `https://ask-cite-assist.onrender.com` and publish."*
+
+Then click **Publish** (top right of the editor). Your frontend is live at `your-project.lovable.app` and talks to your Render backend.
+
+---
+
+### Notes & gotchas
+
+- **Render free tier sleeps after 15 min idle** → first request after sleep takes ~30 s to wake. Fine for portfolio, not for production traffic.
+- **OpenRouter free model is rate-limited** (~20 req/min). If eval fails midway, wait and re-run.
+- **PDFs and FAISS index are NOT in Git** (gitignored). You must run the ingestion step on every fresh environment (local + Render).
+- **If `/research` returns "no passages"**, ingestion didn't run — repeat step 5 (local) or step 6 (Render).
+- **CORS already handles `*.lovable.app`** via `ALLOWED_ORIGIN_REGEX`, no extra config needed.
+
+---
+
+### What you tell the interviewer
+
+> *"I run a FastAPI service with a LangGraph DAG — Planner → Researcher → Critic → Writer. Retrieval is FAISS over 50 ingested arXiv PDFs using MiniLM embeddings. Tavily provides web-search fallback. I evaluate 100 Q&A pairs with an LLM-as-judge scoring faithfulness and citation accuracy. Deployed on Render free tier, frontend on Lovable."*
+
+Tell me to switch to build mode when you're ready and I'll walk through any step you get stuck on.
